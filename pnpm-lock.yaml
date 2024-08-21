@@ -14,6 +14,9 @@ importers:
       three:
         specifier: ^0.167.1
         version: 0.167.1
+      three-orbitcontrols-ts:
+        specifier: ^0.1.2
+        version: 0.1.2
     devDependencies:
       '@types/three':
         specifier: ^0.167.1
@@ -300,8 +303,14 @@ packages:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
 
+  three-orbitcontrols-ts@0.1.2:
+    resolution: {integrity: sha512-HG45dhJX4010lt/Ohk2d2K0kBaxCS6NLO3+wG9BDfMM5ddH7zMPuF3fhcn8vI4eqcSITtid0OoHEttHhjkIKEQ==}
+
   three@0.167.1:
     resolution: {integrity: sha512-gYTLJA/UQip6J/tJvl91YYqlZF47+D/kxiWrbTon35ZHlXEN0VOo+Qke2walF1/x92v55H6enomymg4Dak52kw==}
+
+  three@0.83.0:
+    resolution: {integrity: sha512-x9TqsmvhHG/Lw16Zi9zbJ0ho+kP8SgIfsz8dJYZbeWaFWoVwdXKolQQAftkUlpuKDys1+6SZIBHoA2QdoZKByQ==}
 
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
@@ -543,7 +552,13 @@ snapshots:
 
   source-map-js@1.2.0: {}
 
+  three-orbitcontrols-ts@0.1.2:
+    dependencies:
+      three: 0.83.0
+
   three@0.167.1: {}
+
+  three@0.83.0: {}
 
   typescript@5.5.4: {}
 
