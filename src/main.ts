@@ -30,11 +30,32 @@ const camera = new THREE.PerspectiveCamera(angel, getAspect(), near, far);
 
 camera.position.z = 2;
 scene.add(camera);
+const geometry = new THREE.BufferGeometry();
 
+const count = 50;
+const numberOfVertexFloats = 3;
+const positionsArray = new Float32Array(count * 3 * numberOfVertexFloats);
+for (let i = 0; i < positionsArray.length; i++) {
+  positionsArray[i] = (Math.random() - 0.5) * 10;
+}
+const positionAttribute = new THREE.BufferAttribute(
+  positionsArray,
+  numberOfVertexFloats
+);
+
+// const p1 = [0, 0, 0];
+// const p2 = [0, 1, 0];
+// const p3 = [1, 0, 0];
+// const positionsArray = new Float32Array([...p1, ...p2, ...p3, ...p4]);
+// const positionAttribute = new THREE.BufferAttribute(positionsArray, 3);
+// g.setAttribute("position", positionAttribute);
+geometry.setAttribute("position", positionAttribute);
 const cube1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
+  // new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
+  geometry,
   new THREE.MeshBasicMaterial({
     color: 0xff0000,
+    wireframe: true,
   })
 );
 camera.lookAt(cube1.position);
