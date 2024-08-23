@@ -1,8 +1,11 @@
-// TODO cpntinue lesson 6 ,stopped at 20:00
+// TODO continue lesson 9 ,stopped at 22:40
 import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from "lil-gui";
+
 const canvas = document.querySelector("canvas#webgl") as HTMLCanvasElement;
+const gui = new GUI();
 const size = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -19,33 +22,31 @@ const camera = new THREE.PerspectiveCamera(angel, getAspect(), near, far);
 
 camera.position.z = 2;
 scene.add(camera);
-const geometry = new THREE.BufferGeometry();
+const material = new THREE.MeshBasicMaterial({
+  color: "#ff0000",
+  wireframe: false,
+});
+const box = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+const cube1 = new THREE.Mesh(box, material);
 
-const count = 50;
-const numberOfVertexFloats = 3;
-const positionsArray = new Float32Array(count * 3 * numberOfVertexFloats);
-for (let i = 0; i < positionsArray.length; i++) {
-  positionsArray[i] = (Math.random() - 0.5) * 10;
-}
-const positionAttribute = new THREE.BufferAttribute(
-  positionsArray,
-  numberOfVertexFloats
-);
-
-geometry.setAttribute("position", positionAttribute);
-const cube1 = new THREE.Mesh(
-  // new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
-  geometry,
-  new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-    wireframe: true,
+gui.add(cube1.position, "y").min(-3).max(3).step(0.01).name("elevation");
+gui.add(cube1.position, "x").min(-3).max(3).step(0.01).name("sliding");
+gui.add(cube1.position, "z").min(-3).max(3).step(0.01).name("push-pull");
+gui.add(material, "wireframe").name("wireframe");
+gui.add(cube1, "visible").name("visible");
+gui
+  .addColor(material.color, "color")
+  .onChange((value: THREE.Color) => {
+    console.log(value.getHex());
+    // value.set(value.getHexString());
   })
-);
+  .name("cube color");
 camera.lookAt(cube1.position);
 scene.add(cube1);
 const renderer = new THREE.WebGLRenderer({
   canvas,
 });
+
 renderer.setSize(size.width, size.height);
 
 renderer.render(scene, camera);
@@ -77,21 +78,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.update();
 
-const noise = () => {
-  for (let i = 0; i < positionsArray.length; i++) {
-    positionsArray[i] = (Math.random() - 0.5) * 10;
-  }
-  const positionAttribute = new THREE.BufferAttribute(
-    positionsArray,
-    numberOfVertexFloats
-  );
-
-  geometry.setAttribute("position", positionAttribute);
-};
-
 const animate = () => {
-  noise();
-
   controls.update();
   renderer.render(scene, camera);
 
