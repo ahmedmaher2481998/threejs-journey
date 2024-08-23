@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "gsap": "^3.12.5",
-    "three": "^0.167.1",
-    "three-orbitcontrols-ts": "^0.1.2"
+    "three": "^0.167.1"
   }
 }
