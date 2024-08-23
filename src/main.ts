@@ -7,17 +7,6 @@ const size = {
   width: window.innerWidth,
   height: window.innerHeight,
 };
-/**
- * cursor
- */
-// const cursor = { x: 0, y: 0 };
-
-// window.addEventListener("mousemove", (e) => {
-//   cursor.x = e.clientX / size.width - 0.5;
-//   cursor.y = e.clientY / size.height - 0.5;
-//   // console.log(cursor);
-// });
-console.log(`🚀 canvas is defined:${Boolean(canvas)}`);
 if (!canvas) alert("canvas is not defined");
 
 const scene = new THREE.Scene();
@@ -43,12 +32,6 @@ const positionAttribute = new THREE.BufferAttribute(
   numberOfVertexFloats
 );
 
-// const p1 = [0, 0, 0];
-// const p2 = [0, 1, 0];
-// const p3 = [1, 0, 0];
-// const positionsArray = new Float32Array([...p1, ...p2, ...p3, ...p4]);
-// const positionAttribute = new THREE.BufferAttribute(positionsArray, 3);
-// g.setAttribute("position", positionAttribute);
 geometry.setAttribute("position", positionAttribute);
 const cube1 = new THREE.Mesh(
   // new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
@@ -94,9 +77,24 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.update();
 
+const noise = () => {
+  for (let i = 0; i < positionsArray.length; i++) {
+    positionsArray[i] = (Math.random() - 0.5) * 10;
+  }
+  const positionAttribute = new THREE.BufferAttribute(
+    positionsArray,
+    numberOfVertexFloats
+  );
+
+  geometry.setAttribute("position", positionAttribute);
+};
+
 const animate = () => {
+  noise();
+
   controls.update();
   renderer.render(scene, camera);
+
   requestAnimationFrame(animate);
 };
 animate();
