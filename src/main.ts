@@ -5,7 +5,16 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
 const canvas = document.querySelector("canvas#webgl") as HTMLCanvasElement;
-const gui = new GUI();
+const gui = new GUI({
+  title: "my first debug ui",
+  width: 350,
+  closeFolders: false,
+});
+const debugObject = {
+  color: "",
+  spin: () => null,
+  subdivisions: 2,
+};
 const size = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -22,27 +31,14 @@ const camera = new THREE.PerspectiveCamera(angel, getAspect(), near, far);
 
 camera.position.z = 2;
 scene.add(camera);
-const material = new THREE.MeshBasicMaterial({
-  color: "#ff0000",
-  wireframe: false,
-});
-const box = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-const cube1 = new THREE.Mesh(box, material);
+// const color = new THREE.Color("#ff0000");
+debugObject.color = "#a778d8";
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({ color: debugObject.color });
+const mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
 
-gui.add(cube1.position, "y").min(-3).max(3).step(0.01).name("elevation");
-gui.add(cube1.position, "x").min(-3).max(3).step(0.01).name("sliding");
-gui.add(cube1.position, "z").min(-3).max(3).step(0.01).name("push-pull");
-gui.add(material, "wireframe").name("wireframe");
-gui.add(cube1, "visible").name("visible");
-gui
-  .addColor(material.color, "color")
-  .onChange((value: THREE.Color) => {
-    console.log(value.getHex());
-    // value.set(value.getHexString());
-  })
-  .name("cube color");
-camera.lookAt(cube1.position);
-scene.add(cube1);
+camera.lookAt(mesh.position);
 const renderer = new THREE.WebGLRenderer({
   canvas,
 });
@@ -60,18 +56,24 @@ window.addEventListener("resize", (e) => {
   renderer.setSize(size.width, size.height);
 });
 // go full screen
-window.addEventListener("dblclick", () => {
-  const fullscreenElement: any = //@ts-expect-error
-    document.fullscreenElement || document.webkitFullscreenElement;
+window.addEventListener("dblclick", (e) => {
+  if (e.target !== canvas) return;
+  document.fullscreenElement;
+  // const fullscreenElement: any = document.fullscreenElement
+  //   ? document.fullscreenElement
+  // : /*@ts-expect-error */
+  // document.webkitFullscreenElement;
   // we add webkit prefix to handle safari incompatibility
-  if (!fullscreenElement) {
-    if (document.exitFullscreen) document.exitFullscreen();
-    //@ts-expect-error
-    else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
+  if (document.fullscreenElement) {
+    // if (document.exitFullscreen)
+    document.exitFullscreen();
+    // // @ts-expect-error
+    // else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
   } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    //@ts-expect-error
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    // if (document.exitFullscreen)
+    document.exitFullscreen();
+    // //@ts-expect-error
+    // else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
   }
 });
 const controls = new OrbitControls(camera, canvas);
@@ -85,3 +87,46 @@ const animate = () => {
   requestAnimationFrame(animate);
 };
 animate();
+const cubeTweak = gui.addFolder("cube controls");
+cubeTweak.add(mesh.position, "y").min(-3).max(3).step(0.01).name("elevation");
+cubeTweak.add(mesh.position, "x").min(-3).max(3).step(0.01).name("sliding");
+cubeTweak.add(mesh.position, "z").min(-3).max(3).step(0.01).name("push-pull");
+cubeTweak.add(material, "wireframe").name("wireframe");
+cubeTweak.add(mesh, "visible").name("visible");
+cubeTweak
+  .addColor(debugObject, "color")
+  .onChange((value: string) => {
+    material.color.set(debugObject.color);
+    // value.set(value.getHexString());
+  })
+  .name("cube color");
+debugObject.spin = () => {
+  console.log("spin.");
+  gsap.to(mesh.rotation, {
+    y: mesh.rotation.y + Math.PI * 2,
+    duration: 2,
+  });
+  return null;
+};
+
+cubeTweak.add(debugObject, "spin");
+cubeTweak
+  .add(debugObject, "subdivisions")
+  .min(1)
+  .max(20)
+  .step(1)
+  .onFinishChange(() => {
+    mesh.geometry.dispose();
+    material.wireframe = true;
+    let x,
+      y,
+      z = debugObject.subdivisions;
+    mesh.geometry = new THREE.BoxGeometry(1, 1, 1, x, y, z);
+  });
+window.addEventListener("keydown", (event: KeyboardEvent) => {
+  if (event.key === "h") {
+    event.preventDefault();
+    if (gui._hidden) gui.hide();
+    else gui.show();
+  }
+});
