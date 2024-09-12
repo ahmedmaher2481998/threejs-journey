@@ -1,8 +1,49 @@
-// TODO continue lesson 9 ,stopped at 22:40
+// TODO continue lesson 10 texture  ,stopped at 50:40
 import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
+const loadManager = new THREE.LoadingManager();
+
+// loadManager.onStart = () => {
+//   console.log("on start");
+// };
+
+// loadManager.onProgress = () => {
+//   console.log("onProgress");
+// };
+
+// loadManager.onLoad = () => {
+//   console.log("onLoad");
+// };
+
+// loadManager.onError = () => {
+//   console.log("onError");
+// };
+
+const textureLoader = new THREE.TextureLoader(loadManager);
+
+const colorTexture = textureLoader.load("/textures/door/color.jpg");
+// const alphaTexture = textureLoader.load("/textures/door/alpha.jpg");
+// const metalnessTexture = textureLoader.load("/textures/door/metalness.jpg");
+// const roughnessTexture = textureLoader.load("/textures/door/roughness.jpg");
+// const normalTexture = textureLoader.load("/textures/door/normal.jpg");
+// const heightTexture = textureLoader.load("/textures/door/height.jpg");
+// const ambientOcclusionTexture = textureLoader.load(
+//   "/textures/door/ambientOcclusion.jpg"
+// );
+// colorTexture.repeat.x = 2;
+// colorTexture.repeat.y = 3;
+// colorTexture.wrapS = THREE.RepeatWrapping;
+// colorTexture.wrapT = THREE.RepeatWrapping;
+// colorTexture.offset.x = 0.5;
+// colorTexture.offset.y = 0.5;
+// colorTexture.wrapS = THREE.MirroredRepeatWrapping;
+// colorTexture.wrapT = THREE.MirroredRepeatWrapping;
+// rotation happens at uv 0,0 we move the center of rotation to the .5 x & .5 y of the cube
+colorTexture.rotation = Math.PI * 0.25;
+colorTexture.center.x = 0.5;
+colorTexture.center.y = 0.5;
 
 const canvas = document.querySelector("canvas#webgl") as HTMLCanvasElement;
 const gui = new GUI({
@@ -10,6 +51,7 @@ const gui = new GUI({
   width: 350,
   closeFolders: false,
 });
+gui.hide();
 const debugObject = {
   color: "",
   spin: () => null,
@@ -18,23 +60,25 @@ const debugObject = {
 const size = {
   width: window.innerWidth,
   height: window.innerHeight,
+  getAspect() {
+    return this.width / this.height;
+  },
 };
 if (!canvas) alert("canvas is not defined");
 
 const scene = new THREE.Scene();
 
-const getAspect = () => size.width / size.height;
 const angel = 75; // field of view preferred between 45-75
 const near = 0.1;
 const far = 100;
-const camera = new THREE.PerspectiveCamera(angel, getAspect(), near, far);
+const camera = new THREE.PerspectiveCamera(angel, size.getAspect(), near, far);
 
 camera.position.z = 2;
 scene.add(camera);
 // const color = new THREE.Color("#ff0000");
 debugObject.color = "#a778d8";
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: debugObject.color });
+const material = new THREE.MeshBasicMaterial({ map: colorTexture });
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
@@ -50,31 +94,10 @@ renderer.render(scene, camera);
 window.addEventListener("resize", (e) => {
   size.width = window.innerWidth;
   size.height = window.innerHeight;
-  camera.aspect = getAspect();
+  camera.aspect = size.getAspect();
   camera.updateProjectionMatrix();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(size.width, size.height);
-});
-// go full screen
-window.addEventListener("dblclick", (e) => {
-  if (e.target !== canvas) return;
-  document.fullscreenElement;
-  // const fullscreenElement: any = document.fullscreenElement
-  //   ? document.fullscreenElement
-  // : /*@ts-expect-error */
-  // document.webkitFullscreenElement;
-  // we add webkit prefix to handle safari incompatibility
-  if (document.fullscreenElement) {
-    // if (document.exitFullscreen)
-    document.exitFullscreen();
-    // // @ts-expect-error
-    // else if (canvas.webkitRequestFullscreen) canvas.webkitRequestFullscreen();
-  } else {
-    // if (document.exitFullscreen)
-    document.exitFullscreen();
-    // //@ts-expect-error
-    // else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-  }
 });
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -87,6 +110,7 @@ const animate = () => {
   requestAnimationFrame(animate);
 };
 animate();
+// adding debug ui
 const cubeTweak = gui.addFolder("cube controls");
 cubeTweak.add(mesh.position, "y").min(-3).max(3).step(0.01).name("elevation");
 cubeTweak.add(mesh.position, "x").min(-3).max(3).step(0.01).name("sliding");
@@ -124,9 +148,9 @@ cubeTweak
     mesh.geometry = new THREE.BoxGeometry(1, 1, 1, x, y, z);
   });
 window.addEventListener("keydown", (event: KeyboardEvent) => {
+  event.preventDefault();
   if (event.key === "h") {
-    event.preventDefault();
-    if (gui._hidden) gui.hide();
+    if (!gui._hidden) gui.hide();
     else gui.show();
   }
 });
